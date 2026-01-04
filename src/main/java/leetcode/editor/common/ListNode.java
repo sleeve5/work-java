@@ -1,4 +1,4 @@
-package main.java.leetcode.editor.common;
+package leetcode.editor.common;
 
 public class ListNode {
     public int val;
