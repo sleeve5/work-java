@@ -27,7 +27,7 @@ bin/
 /.nb-gradle/
 
 ### VS Code ###
-.vscode/
+
 
 ### Mac OS ###
 .DS_Store
@@ -66,3 +66,6 @@ log/
 *.swp
 *.swo
 *~
+
+# leetcode
+.lcpr_data/

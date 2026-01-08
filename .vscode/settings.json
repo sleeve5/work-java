@@ -1,0 +1,14 @@
+{
+    "cSpell.words": [
+        "nums"
+    ],
+    // 文件编码设置
+    "files.encoding": "utf8",
+    "files.autoGuessEncoding": true,
+    // Java编译器设置
+    "java.compiler.encoding": "UTF-8",
+    // Code Runner扩展设置
+    "code-runner.executorMap": {
+        "java": "cd $workspaceRoot && javac -encoding UTF-8 -d target src/main/java/leetcode/editor/common/ListNode.java src/main/java/practice/$fileName && java -cp target practice.$fileNameWithoutExt"
+    }
+}

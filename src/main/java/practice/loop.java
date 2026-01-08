@@ -1,3 +1,4 @@
+package practice;
 
 public class loop {
     String nestedForLoop(int n) {
