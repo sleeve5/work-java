@@ -88,6 +88,96 @@ public class hashmap {
         }
     }
 
+    class HashMapChaining {
+        int size;
+        int capacity;
+        double loadthres;
+        int extendRatio;
+        List<List<Pair>> buckets;
+
+        public HashMapChaining() {
+            this.size = 0;
+            this.capacity = 4;
+            this.loadthres = 2.0 / 3.0;
+            this.extendRatio = 2;
+            buckets = new ArrayList<>(capacity);
+            for (int i = 0; i < capacity; i++) {
+                buckets.add(new ArrayList<>());
+            }
+        }
+
+        int hashFunc(int key) {
+            return key % capacity;
+        }
+
+        double loadFactor() {
+            return (double) size / capacity;
+        }
+
+        void extend() {
+            List<List<Pair>> bucketsTmp = buckets;
+            capacity *= extendRatio;
+            buckets = new ArrayList<>(capacity);
+            for (int i = 0; i < capacity; i++) {
+                buckets.add(new ArrayList<>());
+            }
+            size = 0;
+            for (List<Pair> bucket : bucketsTmp) {
+                for (Pair pair : bucket) {
+                    put(pair.key, pair.val);
+                }
+            }
+        }
+
+        String get(int key) {
+            int index = hashFunc(key);
+            List<Pair> bucket = buckets.get(index);
+            for (Pair pair : bucket) {
+                if (pair.key == key) {
+                    return pair.val;
+                }
+            }
+            return null;
+        }
+
+        void put(int key, String val) {
+            if (loadFactor() > loadthres) {
+                extend();
+            }
+            int index = hashFunc(key);
+            List<Pair> bucket = buckets.get(index);
+            for (Pair pair : bucket) {
+                if (pair.key == key) {
+                    pair.val = val;
+                    return;
+                }
+            }
+            Pair pair = new Pair(key, val);
+            bucket.add(pair);
+            size++;
+        }
+
+        void remove(int key) {
+            int index = hashFunc(key);
+            List<Pair> bucket = buckets.get(index);
+            for (Pair pair : bucket) {
+                if (pair.key == key) {
+                    bucket.remove(pair);
+                    size--;
+                    break;
+                }
+            }
+        }
+
+        void print() {
+            for (List<Pair> bucket : buckets) {
+                for (Pair pair : bucket) {
+                    System.out.println(pair.key + " -> " + pair.val);
+                }
+            }
+        }
+    }
+
     public static void main(String[] args) {
         Map<Integer, String> map = new HashMap<>();
 
