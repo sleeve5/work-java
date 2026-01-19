@@ -22,6 +22,9 @@ public class heap {
     }
 
     int peek() {
+        if (maxHeap.isEmpty()) {
+            throw new IndexOutOfBoundsException();
+        }
         return maxHeap.get(0);
     }
 
@@ -53,10 +56,10 @@ public class heap {
     void siftdown(int i) {
         while (true) {
             int l = left(i), r = right(i), ma = i;
-            if (l < size() && maxHeap.get(l) > maxHeap.get(i)) {
+            if (l < size() && maxHeap.get(l) > maxHeap.get(ma)) {
                 ma = l;
             }
-            if (l < size() && maxHeap.get(r) > maxHeap.get(i)) {
+            if (r < size() && maxHeap.get(r) > maxHeap.get(ma)) {
                 ma = r;
             }
             if (ma == i) {
