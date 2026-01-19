@@ -6,9 +6,16 @@
  */
 package practice;
 
-import leetcode.editor.common.*;
-
 public class linkedlist {
+    static class ListNode {
+        int val;
+        ListNode next;
+
+        ListNode(int x) {
+            val = x;
+        }
+    }
+
     /* 在链表的节点 n0 之后插入节点 P */
     static void insert(ListNode n0, ListNode P) {
         ListNode n1 = n0.next;
