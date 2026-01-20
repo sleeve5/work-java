@@ -36,10 +36,10 @@ public class heap {
         return maxHeap.isEmpty();
     }
 
-    void swap(int a, int b) {
-        int temp = maxHeap.get(a);
-        maxHeap.set(a, maxHeap.get(b));
-        maxHeap.set(b, temp);
+    void swap(List<Integer> heap, int a, int b) {
+        int temp = heap.get(a);
+        heap.set(a, heap.get(b));
+        heap.set(b, temp);
     }
 
     void siftup(int i) {
@@ -48,7 +48,7 @@ public class heap {
             if (p < 0 || maxHeap.get(i) <= maxHeap.get(p)) {
                 break;
             }
-            swap(p, i);
+            swap(maxHeap, p, i);
             i = p;
         }
     }
@@ -65,7 +65,7 @@ public class heap {
             if (ma == i) {
                 break;
             }
-            swap(ma, i);
+            swap(maxHeap, ma, i);
             i = ma;
         }
     }
@@ -79,7 +79,7 @@ public class heap {
         if (isEmpty()) {
             throw new IndexOutOfBoundsException();
         }
-        swap(0, size() - 1);
+        swap(maxHeap, 0, size() - 1);
         int val = maxHeap.remove(size() - 1);
         siftdown(0);
         return val;
