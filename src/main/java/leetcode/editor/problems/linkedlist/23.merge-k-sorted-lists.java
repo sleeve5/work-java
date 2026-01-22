@@ -11,7 +11,6 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 
 import leetcode.editor.common.ListNode;
-import practice.list;
 
 // @lc code=start
 /**
