@@ -27,7 +27,7 @@ bin/
 /.nb-gradle/
 
 ### VS Code ###
-
+*.json
 
 ### Mac OS ###
 .DS_Store
