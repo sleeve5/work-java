@@ -9,6 +9,6 @@
     "java.compiler.encoding": "UTF-8",
     // Code Runner扩展设置
     "code-runner.executorMap": {
-        "java": "cd $workspaceRoot && javac -encoding UTF-8 -d target src/main/java/leetcode/editor/common/ListNode.java src/main/java/practice/$fileName && java -cp target practice.$fileNameWithoutExt"
+        "java": "cd $workspaceRoot ; if ($?) { javac -encoding UTF-8 -nowarn -d target src/main/java/leetcode/editor/common/ListNode.java src/main/java/practice/$fileName } ; if ($?) { java -cp target practice.$fileNameWithoutExt }"
     }
 }
