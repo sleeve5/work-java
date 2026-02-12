@@ -1,4 +1,4 @@
-package leetcode.editor.leetcode.toOffer;
+package toOffer;
 /*
  * @lc app=leetcode.cn id=LCR 126 lang=java
  * @lcpr version=30307
