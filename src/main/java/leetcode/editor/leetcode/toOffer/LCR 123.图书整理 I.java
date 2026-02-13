@@ -1,11 +1,7 @@
 package toOffer;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
-
 import leetcode.editor.common.ListNode;
-import practice.stack;
 
 /*
  * @lc app=leetcode.cn id=LCR 123 lang=java
