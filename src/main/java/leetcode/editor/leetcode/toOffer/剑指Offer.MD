@@ -2,6 +2,31 @@
 
 ---
 
+## 题目分类总览
+
+| 数据结构/算法 | 题目 | 难度 | 日期 |
+|--------------|------|------|------|
+| 数组 | LCR 120 - 寻找文件副本 | 简单 | 2026年2月12日 |
+| 数组 | LCR 121 - 寻找目标值 - 二维数组 | 中等 | 2026年2月12日 |
+| 栈与队列 | LCR 125 - 图书整理 II | 简单 | 2026年2月12日 |
+| 动态规划 | LCR 126 - 斐波那契数 | 简单 | 2026年2月12日 |
+| 动态规划 | LCR 127 - 跳跃训练 | 简单 | 2026年2月12日 |
+| 二分查找 | LCR 128 - 库存管理 I | 简单 | 2026年2月12日 |
+| 字符串 | LCR 122 - 路径加密 | 简单 | 2026年2月13日 |
+| 深度优先搜索 | LCR 129 - 字母迷宫 | 中等 | 2026年2月13日 |
+| 深度优先搜索 | LCR 130 - 衣橱整理 | 中等 | 2026年2月13日 |
+| 链表 | LCR 123 - 图书整理 I | 简单 | 2026年2月13日 |
+| 递归与分治 | LCR 124 - 推理二叉树 | 中等 | 2026年2月19日 |
+| 动态规划 | LCR 131 - 砍竹子 I | 中等 | 2026年2月19日 |
+| 数学与贪心 | LCR 134 - Pow(x, n) | 中等 | 2026年2月19日 |
+| 数组生成 | LCR 135 - 报数 | 简单 | 2026年2月19日 |
+| 链表 | LCR 136 - 删除链表的节点 | 简单 | 2026年2月19日 |
+| 链表 | LCR 141 - 训练计划 III | 简单 | 2026年2月19日 |
+| 数位分析 | 233 - 数字 1 的个数 | 困难 | 2026年2月19日 |
+| 数位分析 | 400 - 第 N 位数字 | 中等 | 2026年2月19日 |
+
+---
+
 ## 第一天：2026年2月12日
 
 ### 今日完成题目
@@ -679,20 +704,439 @@ for (int i = 0; i < list.size(); i++) {
 
 ---
 
-## 题目分类总览
+## 第三天：2026年2月19日
 
-| 数据结构/算法 | 题目 | 难度 | 日期 |
-|--------------|------|------|------|
-| 数组 | LCR 120 - 寻找文件副本 | 简单 | 2026年2月12日 |
-| 数组 | LCR 121 - 寻找目标值 - 二维数组 | 中等 | 2026年2月12日 |
-| 栈与队列 | LCR 125 - 图书整理 II | 简单 | 2026年2月12日 |
-| 动态规划 | LCR 126 - 斐波那契数 | 简单 | 2026年2月12日 |
-| 动态规划 | LCR 127 - 跳跃训练 | 简单 | 2026年2月12日 |
-| 二分查找 | LCR 128 - 库存管理 I | 简单 | 2026年2月12日 |
-| 字符串 | LCR 122 - 路径加密 | 简单 | 2026年2月13日 |
-| 深度优先搜索 | LCR 129 - 字母迷宫 | 中等 | 2026年2月13日 |
-| 深度优先搜索 | LCR 130 - 衣橱整理 | 中等 | 2026年2月13日 |
-| 链表 | LCR 123 - 图书整理 I | 简单 | 2026年2月13日 |
+### 今日完成题目
+- LCR 124 - 推理二叉树
+- LCR 131 - 砍竹子 I
+- LCR 134 - Pow(x, n)
+- LCR 135 - 报数
+- LCR 136 - 删除链表的节点
+- LCR 141 - 训练计划 III
+- 233 - 数字 1 的个数
+- 400 - 第 N 位数字
+
+---
+
+### 一、递归与分治
+
+#### LCR 124 - 推理二叉树
+
+##### 题目描述
+
+根据二叉树的前序遍历和中序遍历构造二叉树并返回其根节点。
+
+##### 整理方法
+
+**方法：递归分治（唯一解法）**
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+- 优点：逻辑清晰，符合问题本质
+
+##### 完整题解
+
+```java
+class Solution {
+    private Map<Integer, Integer> inorderMap;
+    
+    public TreeNode deduceTree(int[] preorder, int[] inorder) {
+        inorderMap = new HashMap<>();
+        for (int i = 0; i < inorder.length; i++) {
+            inorderMap.put(inorder[i], i);
+        }
+        return buildTree(preorder, 0, preorder.length - 1, inorder, 0, inorder.length - 1);
+    }
+    
+    private TreeNode buildTree(int[] preorder, int preStart, int preEnd, 
+                              int[] inorder, int inStart, int inEnd) {
+        if (preStart > preEnd) {
+            return null;
+        }
+        
+        int rootVal = preorder[preStart];
+        TreeNode root = new TreeNode(rootVal);
+        int rootIndex = inorderMap.get(rootVal);
+        int leftSize = rootIndex - inStart;
+        
+        root.left = buildTree(preorder, preStart + 1, preStart + leftSize, 
+                             inorder, inStart, rootIndex - 1);
+        root.right = buildTree(preorder, preStart + leftSize + 1, preEnd, 
+                              inorder, rootIndex + 1, inEnd);
+        
+        return root;
+    }
+}
+```
+
+##### 核心思想
+
+- **前序数组**的第一个元素是根节点
+- **中序数组**中根节点左边的元素是左子树，右边的元素是右子树
+- **递归构造**左右子树，通过哈希表快速定位根节点位置
+
+---
+
+### 二、数学与贪心
+
+#### LCR 131 - 砍竹子 I
+
+##### 题目描述
+
+将竹子砍成若干段，求各段长度的最大乘积。
+
+##### 整理方法
+
+**方法：动态规划**
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+- 优点：逻辑清晰，易于理解
+
+##### 完整题解
+
+```java
+class Solution {
+    public int cuttingBamboo(int bamboo_len) {
+        int[] dp = new int[bamboo_len + 1];
+        if (bamboo_len == 0 || bamboo_len == 1) {
+            return bamboo_len;
+        }
+        if (bamboo_len == 2) {
+            return 1;
+        }
+        if (bamboo_len == 3) {
+            return 2;
+        }
+        dp[0] = 1; dp[1] = 1; dp[2] = 2; dp[3] = 3;
+        for (int i = 4; i < bamboo_len + 1; i++) {
+            dp[i] = Math.max(dp[i - 2] * 2, dp[i - 3] * 3);
+        }
+        return dp[bamboo_len];
+    }
+}
+```
+
+##### 核心思想
+
+- **动态规划**：dp[i] 表示长度为i的竹子的最大乘积
+- **状态转移**：dp[i] = max(dp[i-2] * 2, dp[i-3] * 3)
+- **边界条件**：处理长度小于等于3的情况
+
+---
+
+#### LCR 134 - Pow(x, n)
+
+##### 题目描述
+
+实现 x 的 n 次幂函数。
+
+##### 整理方法
+
+**方法：快速幂（分治法）**
+
+- 时间复杂度：O(logn)
+- 空间复杂度：O(logn)
+- 优点：避免线性时间复杂度，适用于大数
+
+##### 完整题解
+
+```java
+class Solution {
+    public double myPow(double x, int n) {
+        if (n == 0) {
+            return 1.0;
+        }
+        if (n < 0) {
+            if (n == Integer.MIN_VALUE) {
+                return 1.0 / (myPow(x, -(n + 1)) * x);
+            }
+            return 1.0 / myPow(x, -n);
+        }
+        return fastPow(x, n);
+    }
+    
+    private double fastPow(double x, int n) {
+        if (n == 1) {
+            return x;
+        }
+        double half = fastPow(x, n / 2);
+        return n % 2 == 0 ? half * half : half * half * x;
+    }
+}
+```
+
+##### 核心思想
+
+- **分治**：x^n = x^(n/2) * x^(n/2)（偶数）
+- **边界处理**：处理 n=0 和 n=Integer.MIN_VALUE 的情况
+- **时间优化**：将时间复杂度从 O(n) 降低到 O(logn)
+
+---
+
+### 三、字符串处理
+
+#### LCR 135 - 报数
+
+##### 题目描述
+
+实现一个十进制数字报数程序，按照数字从小到大的顺序返回一个整数数列，该数列从数字 1 开始，到最大的正整数 cnt 位数字结束。
+
+##### 整理方法
+
+**方法：直接循环**
+
+- 时间复杂度：O(10^cnt)
+- 空间复杂度：O(10^cnt)
+- 优点：代码简洁，逻辑直接
+
+##### 完整题解
+
+```java
+class Solution {
+    public int[] countNumbers(int cnt) {
+        int n = (int) Math.pow(10, cnt) - 1;
+        int[] res = new int[n];
+        for (int i = 0; i < n; i++) {
+            res[i] = i + 1;
+        }
+        return res;
+    }
+}
+```
+
+##### 核心思想
+
+- **计算范围**：最大的 cnt 位数字是 10^cnt - 1
+- **直接生成**：使用循环生成 1 到 10^cnt - 1 的所有数字
+- **数组构建**：根据计算的长度创建数组并填充
+- **时间复杂度**：O(10^cnt)，与结果数组的长度成正比
+
+---
+
+### 四、链表操作
+
+#### LCR 136 - 删除链表的节点
+
+##### 题目描述
+
+删除链表中等于给定值 val 的节点。
+
+##### 整理方法
+
+**方法：链表遍历**
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+- 优点：简单直接，原地操作
+
+##### 完整题解
+
+```java
+class Solution {
+    public ListNode deleteNode(ListNode head, int val) {
+        if (head == null) {
+            return null;
+        }
+        if (head.val == val) {
+            return head.next;
+        }
+        ListNode prev = head;
+        ListNode curr = head.next;
+        while (curr != null) {
+            if (curr.val == val) {
+                prev.next = curr.next;
+                break;
+            }
+            prev = curr;
+            curr = curr.next;
+        }
+        return head;
+    }
+}
+```
+
+##### 核心思想
+
+- **头节点处理**：如果头节点是目标值，直接返回下一个节点
+- **遍历删除**：使用双指针遍历链表，找到目标节点后删除
+- **原地操作**：不需要额外空间
+
+---
+
+#### LCR 141 - 训练计划 III
+
+##### 题目描述
+
+给定一个头节点为 head 的单链表，将该链表倒序并返回。
+
+##### 整理方法
+
+**方法：迭代反转**
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+- 优点：原地操作，空间最优
+
+##### 完整题解
+
+```java
+class Solution {
+    public ListNode trainningPlan(ListNode head) {
+        if (head == null || head.next == null) {
+            return head;
+        }
+        ListNode cur = head.next;
+        ListNode pre = head, next;
+        pre.next = null;
+        while (cur != null) {
+            next = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = next;
+        }
+
+        return pre;
+    }
+}
+```
+
+##### 核心思想
+
+- **迭代反转**：使用三个指针（pre, cur, next）逐步反转链表
+- **边界处理**：空链表或单节点链表直接返回
+- **原地操作**：不需要额外空间，时间复杂度O(n)
+- **指针更新**：每次循环更新指针指向，实现链表反转
+
+---
+
+### 五、数位分析
+
+#### 233 - 数字 1 的个数
+
+##### 题目描述
+
+计算所有小于等于 n 的非负整数中数字 1 出现的个数。
+
+##### 整理方法
+
+**方法：数位分析**
+
+- 时间复杂度：O(logn)
+- 空间复杂度：O(1)
+- 优点：高效，避免暴力遍历
+
+##### 完整题解
+
+```java
+class Solution {
+    public int countDigitOne(int n) {
+        if (n < 1) {
+            return 0;
+        }
+        
+        int count = 0;
+        long digit = 1;
+        long high = n / 10;
+        long cur = n % 10;
+        long low = 0;
+        
+        while (high != 0 || cur != 0) {
+            if (cur == 0) {
+                count += high * digit;
+            } else if (cur == 1) {
+                count += high * digit + low + 1;
+            } else {
+                count += (high + 1) * digit;
+            }
+            
+            low += cur * digit;
+            cur = high % 10;
+            high /= 10;
+            digit *= 10;
+        }
+        
+        return count;
+    }
+}
+```
+
+##### 核心思想
+
+- **逐位计算**：分别计算每一位上 1 出现的次数
+- **数学规律**：根据当前位数字与 1 的关系，使用不同的计算公式
+- **高效计算**：时间复杂度与数字位数相关，适用于大数
+
+---
+
+#### 400 - 第 N 位数字
+
+##### 题目描述
+
+在无限整数序列中找到并返回第 n 位上的数字。
+
+##### 整理方法
+
+**方法：数位分析**
+
+- 时间复杂度：O(logn)
+- 空间复杂度：O(1)
+- 优点：高效定位，避免暴力遍历
+
+##### 完整题解
+
+```java
+class Solution {
+    public int findNthDigit(int n) {
+        int digit = 1;
+        long start = 1;
+        long count = 9;
+        
+        while (n > count) {
+            n -= count;
+            digit++;
+            start *= 10;
+            count = 9 * digit * start;
+        }
+        
+        long num = start + (n - 1) / digit;
+        int index = (n - 1) % digit;
+        return ("" + num).charAt(index) - '0';
+    }
+}
+```
+
+##### 核心思想
+
+- **确定位数**：找到第 n 位所在数字的位数
+- **确定数字**：计算该位数下的具体数字
+- **确定位置**：找到第 n 位在该数字中的具体位置
+- **数字转换**：将数字转换为字符串，取对应位置的字符
+
+---
+
+### 六、今日总结
+
+**学习成果**：
+- 完成了 8 道题目，涵盖递归分治、动态规划、数学贪心、数组生成、链表操作、数位分析等知识点
+- 掌握了快速幂、链表反转、数位分析等高效算法
+- 理解了二叉树构造、动态规划解决砍竹子问题等经典问题的解法
+
+**常见错误**：
+11. ❌ LCR 124：忘记使用哈希表优化根节点查找
+12. ❌ LCR 134：未处理 Integer.MIN_VALUE 的边界情况
+13. ❌ 233：直接暴力遍历导致超时
+14. ❌ 400：计算位数时逻辑错误
+15. ❌ LCR 131：初始使用贪心算法，后改为动态规划
+16. ❌ LCR 135：题目理解偏差，实际是数组生成而非报数序列
+
+---
+
+## 学习时间线
+
+- **2026年2月12日**：完成 LCR 120-128 的学习与整理
+- **2026年2月13日**：完成 LCR 122、129、130、123 的学习与整理
+- **2026年2月19日**：完成 LCR 124、131、134、135、136、141 和 233、400 的学习与整理
 
 ---
 
@@ -718,6 +1162,7 @@ for (int i = 0; i < list.size(); i++) {
 |---------|---------|---------|
 | 斐波那契数列 | F(n) = F(n-1) + F(n-2) | 保存前两个状态 |
 | 爬楼梯问题 | 与斐波那契相同，但边界不同 | 注意 num=0 返回 1 |
+| 砍竹子 | 动态规划 | dp[i] = max(dp[i-2]*2, dp[i-3]*3) |
 
 ### 二分查找
 
@@ -738,14 +1183,34 @@ for (int i = 0; i < list.size(); i++) {
 |---------|---------|--------|
 | 字符替换 | 遍历替换 | 使用 StringBuilder 提高性能 |
 
+### 数组生成
+
+| 问题类型 | 核心思想 | 关键点 |
+|---------|---------|--------|
+| 生成1到n | 直接循环 | 计算范围，填充数组 |
+
+### 递归与分治
+
+| 问题类型 | 核心思想 | 关键点 |
+|---------|---------|--------|
+| 二叉树构造 | 递归分治 | 前序找根，中序分左右 |
+| 快速幂 | 分治 | x^n = x^(n/2) * x^(n/2) |
+
+### 链表操作
+
+| 问题类型 | 核心思想 | 关键点 |
+|---------|---------|--------|
+| 删除节点 | 遍历 | 头节点特殊处理 |
+| 链表反转 | 迭代 | 三指针法，原地操作 |
+
+### 数位分析
+
+| 问题类型 | 核心思想 | 关键点 |
+|---------|---------|--------|
+| 数字1的个数 | 逐位计算 | 分情况讨论 |
+| 第N位数字 | 数位定位 | 确定位数、数字、位置 |
+
 ---
 
-## 学习时间线
-
-- **2026年2月12日**：完成 LCR 120-128 的学习与整理
-- **2026年2月13日**：完成 LCR 122、129、130、123 的学习与整理
-
----
-
-*整理时间：2026年2月12日 - 2026年2月13日*
-*完成题目：LCR 120、121、122、123、125、126、127、128、129、130*
+*整理时间：2026年2月12日 - 2026年2月19日*
+*完成题目：LCR 120、121、122、123、124、125、126、127、128、129、130、131、134、135、136、141、233、400*
