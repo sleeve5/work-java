@@ -55,18 +55,19 @@ import java.util.List;
 
 class Solution {
     List<List<Integer>> res = new LinkedList<>();
-    
+    LinkedList<Integer> track = new LinkedList<>();
+    boolean[] used;
+
     public List<List<Integer>> permute(int[] nums) {
         int n = nums.length;
-        LinkedList<Integer> track = new LinkedList<>();
-        boolean[] used = new boolean[n];
+        used = new boolean[n];
 
-        backtrack(nums, track, used);
+        backtrack(nums);
 
         return res;
     }
 
-    private void backtrack(int[] nums, LinkedList<Integer> track, boolean[] used) {
+    private void backtrack(int[] nums) {
         if (track.size() == nums.length) {
             res.add(new LinkedList(track));
             return;
@@ -79,7 +80,7 @@ class Solution {
 
             track.add(nums[i]);
             used[i] = true;
-            backtrack(nums, track, used);
+            backtrack(nums);
             track.removeLast();
             used[i] = false;
         }
