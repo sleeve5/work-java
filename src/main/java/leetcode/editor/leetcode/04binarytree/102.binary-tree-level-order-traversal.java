@@ -50,25 +50,6 @@
 // @lc code=start
 import java.util.*;
 
-public class TreeNode {
-    int val;
-    TreeNode left;
-    TreeNode right;
-
-    TreeNode() {
-    }
-
-    TreeNode(int val) {
-        this.val = val;
-    }
-
-    TreeNode(int val, TreeNode left, TreeNode right) {
-        this.val = val;
-        this.left = left;
-        this.right = right;
-    }
-}
-
 /**
  * Definition for a binary tree node.
  * public class TreeNode {
@@ -84,37 +65,36 @@ public class TreeNode {
  * }
  * }
  */
-class Solution {
-    public List<List<Integer>> levelOrder(TreeNode root) {
-        List<List<Integer>> res = new LinkedList<>();
 
-        if (root == null) {
-            return res;
-        }
+public List<List<Integer>> levelOrder(TreeNode root) {
+    List<List<Integer>> res = new LinkedList<>();
 
-        Queue<TreeNode> q = new LinkedList<>();
-        q.offer(root);
-
-        while (!q.isEmpty()) {
-            int sz = q.size();
-            List<Integer> level = new LinkedList<>();
-
-            for (int i = 0; i < sz; i++) {
-                TreeNode curr = q.poll();
-                level.add(curr.val);
-                if (curr.left != null) {
-                    q.offer(curr.left);
-                }
-                if (curr.right != null) {
-                    q.offer(curr.right);
-                }
-            }
-
-            res.add(level);
-        }
-
+    if (root == null) {
         return res;
     }
+
+    Queue<TreeNode> q = new LinkedList<>();
+    q.offer(root);
+
+    while (!q.isEmpty()) {
+        int sz = q.size();
+        List<Integer> level = new LinkedList<>();
+
+        for (int i = 0; i < sz; i++) {
+            TreeNode curr = q.poll();
+            level.add(curr.val);
+            if (curr.left != null) {
+                q.offer(curr.left);
+            }
+            if (curr.right != null) {
+                q.offer(curr.right);
+            }
+        }
+
+        res.add(level);
+    }
+
+    return res;
 }
 // @lc code=end
 
