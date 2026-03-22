@@ -123,104 +123,104 @@ class DoubleList {
     }
 }
 
-// class LRUCache {
-// private HashMap<Integer, Node> map;
-// private DoubleList cache;
-// private int cap;
-
-// public LRUCache(int capacity) {
-// this.cap = capacity;
-// map = new HashMap<>();
-// cache = new DoubleList();
-// }
-
-// private void makeRecently(int key) {
-// Node x = map.get(key);
-// cache.remove(x);
-// cache.addLast(x);
-// }
-
-// private void addRecently(int key, int val) {
-// Node x = new Node(key, val);
-// cache.addLast(x);
-// map.put(key, x);
-// }
-
-// private void deleteKey(int key) {
-// Node x = map.get(key);
-// cache.remove(x);
-// map.remove(key);
-// }
-
-// private void removeLeastRecently() {
-// Node x = cache.removeFirst();
-// int k = x.key;
-// map.remove(k);
-// }
-
-// public int get(int key) {
-// if (!map.containsKey(key)) {
-// return -1;
-// }
-
-// makeRecently(key);
-// return map.get(key).val;
-// }
-
-// public void put(int key, int value) {
-// if (map.containsKey(key)) {
-// deleteKey(key);
-// addRecently(key, value);
-// return;
-// }
-
-// if (cap == cache.size()) {
-// removeLeastRecently();
-// }
-
-// addRecently(key, value);
-// }
-// }
-
 class LRUCache {
+    private HashMap<Integer, Node> map;
+    private DoubleList cache;
     private int cap;
-    private LinkedHashMap<Integer, Integer> cache = new LinkedHashMap<>();
 
     public LRUCache(int capacity) {
         this.cap = capacity;
+        map = new HashMap<>();
+        cache = new DoubleList();
+    }
+
+    private void makeRecently(int key) {
+        Node x = map.get(key);
+        cache.remove(x);
+        cache.addLast(x);
+    }
+
+    private void addRecently(int key, int val) {
+        Node x = new Node(key, val);
+        cache.addLast(x);
+        map.put(key, x);
+    }
+
+    private void deleteKey(int key) {
+        Node x = map.get(key);
+        cache.remove(x);
+        map.remove(key);
+    }
+
+    private void removeLeastRecently() {
+        Node x = cache.removeFirst();
+        int k = x.key;
+        map.remove(k);
     }
 
     public int get(int key) {
-        if (!cache.containsKey(key)) {
+        if (!map.containsKey(key)) {
             return -1;
         }
 
         makeRecently(key);
-
-        return cache.get(key);
+        return map.get(key).val;
     }
 
-    public void put(int key, int val) {
-        if (cache.containsKey(key)) {
-            cache.put(key, val);
-            makeRecently(key);
+    public void put(int key, int value) {
+        if (map.containsKey(key)) {
+            deleteKey(key);
+            addRecently(key, value);
             return;
         }
 
-        if (cache.size() >= this.cap) {
-            int oldKey = cache.keySet().iterator().next();
-            cache.remove(oldKey);
+        if (cap == cache.size()) {
+            removeLeastRecently();
         }
 
-        cache.put(key, val);
-    }
-
-    private void makeRecently(int key) {
-        int val = cache.get(key);
-        cache.remove(key);
-        cache.put(key, val);
+        addRecently(key, value);
     }
 }
+
+// class LRUCache {
+// private int cap;
+// private LinkedHashMap<Integer, Integer> cache = new LinkedHashMap<>();
+
+// public LRUCache(int capacity) {
+// this.cap = capacity;
+// }
+
+// public int get(int key) {
+// if (!cache.containsKey(key)) {
+// return -1;
+// }
+
+// makeRecently(key);
+
+// return cache.get(key);
+// }
+
+// public void put(int key, int val) {
+// if (cache.containsKey(key)) {
+// cache.put(key, val);
+// makeRecently(key);
+// return;
+// }
+
+// if (cache.size() >= this.cap) {
+// int oldKey = cache.keySet().iterator().next();
+// cache.remove(oldKey);
+// }
+
+// cache.put(key, val);
+// }
+
+// private void makeRecently(int key) {
+// int val = cache.get(key);
+// cache.remove(key);
+// cache.put(key, val);
+// }
+// }
 /**
  * Your LRUCache object will be instantiated and called as such:
  * LRUCache obj = new LRUCache(capacity);
