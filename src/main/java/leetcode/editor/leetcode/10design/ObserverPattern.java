@@ -5,6 +5,20 @@ interface Observer {
     void update(String msg);
 }
 
+class MyObserver implements Observer {
+    String name;
+
+    public MyObserver(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public void update(String msg) {
+        System.out.println(name + " : " + msg);
+    }
+
+}
+
 class Subject {
     private List<Observer> observers = new LinkedList<>();
 
@@ -23,45 +37,23 @@ class Subject {
     }
 }
 
-class Observer1 implements Observer {
-    @Override
-    public void update(String msg) {
-        System.out.println("Observer1: " + msg);
-    }
-}
-
-class Observer2 implements Observer {
-    @Override
-    public void update(String msg) {
-        System.out.println("Observer2: " + msg);
-    }
-}
-
-class Observer3 implements Observer {
-    @Override
-    public void update(String msg) {
-        System.out.println("Observer3: " + msg);
-    }
-}
-
 public class ObserverPattern {
-
     public static void main(String[] args) {
         Subject subject = new Subject();
 
-        Observer o1 = new Observer1();
-        Observer o2 = new Observer2();
-        Observer o3 = new Observer3();
+        Observer o1 = new MyObserver("o1");
+        Observer o2 = new MyObserver("o2");
+        Observer o3 = new MyObserver("o3");
 
         subject.attach(o1);
         subject.attach(o2);
         subject.attach(o3);
 
-        System.out.println("第一次广播消息：");
-        subject.notify("服务状态已更新！");
+        System.out.println("============");
+        subject.notify("alive");
 
-        System.out.println("\n移除 Observer2 后广播：");
+        System.out.println("\n============");
         subject.detach(o2);
-        subject.notify("配置已修改！");
+        subject.notify("alive");
     }
 }
