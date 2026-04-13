@@ -21,13 +21,15 @@
 | ------ | --------- | ---------- |
 | **创建型** | 1. 单例模式 | 双重检查锁定、volatile |
 | **结构型** | 2. LRU 缓存 | HashMap + 双向链表 |
-| **并发-同步** | 3. 阻塞队列 | synchronized + wait/notify |
-| **并发-协调** | 4. 三线程打印 | state + wait/notifyAll |
-| **并发-资源池** | 5. 连接池 | BlockingQueue + 复用 |
-| **并发-限流** | 6. 令牌桶限流 | 时间窗口算法 |
-| **并发-生产者消费者** | 7. 生产者消费者 | Condition 实现 |
-| **并发-线程池** | 8. 线程池 | HashSet + BlockingQueue |
-| **行为型** | 9. 观察者模式 | Subject + Observer |
+| **结构型** | 3. 跳表 | 多层链表 + 随机层数 |
+| **并发-同步** | 4. 阻塞队列 | synchronized + wait/notify |
+| **并发-协调** | 5. 三线程打印 | state + wait/notifyAll |
+| **并发-资源池** | 6. 连接池 | BlockingQueue + 复用 |
+| **并发-限流** | 7. 滑动窗口限流 | LinkedList + 时间窗口 |
+| **并发-生产者消费者** | 8. 生产者消费者 | Condition 实现 |
+| **并发-线程池** | 9. 线程池 | HashSet + BlockingQueue |
+| **行为型** | 10. 观察者模式 | Subject + Observer |
+| **行为型** | 11. 发布订阅模式 | PubSub |
 
 ---
 
@@ -160,6 +162,111 @@ class LRUCache {
 - LinkedHashMap 如何实现 LRU？（accessOrder=true 时，每次 access 都会将节点移到链表尾部）
 - Redis 中 LRU 和 LFU 的区别？（LRU：最近最少使用；LFU：最不经常使用）
 - 为什么不用 LinkedHashMap 直接实现？（可以，但面试官想看到你手写双向链表）
+
+---
+
+### 2.2 跳表（skiplist）
+
+**题目特点**：一种多层链表结构，通过随机层数实现近似 O(log n) 的查找、插入、删除。
+
+**核心思想**：
+- 多层链表，每层都是有序链表
+- 查找时从高层开始，逐步向低层查找
+- 插入时随机决定层数（抛硬币决定）
+- 越高层节点越少，查找跳过越多节点
+
+**关键点**：
+- `DEFAULT_MAX_LEVEL = 32`：最大层数
+- `DEFAULT_P_FACTOR = 0.25`：概率因子，决定层数增长
+- `findClosest()`：在某一层找到最接近目标值的节点
+- 高层链表节点稀疏，适合快速定位
+
+**代码模板**：
+```java
+class skiplist {
+    static class Node {
+        Integer value;
+        Node[] next;
+        Node(Integer value, int size) {
+            this.value = value;
+            this.next = new Node[size];
+        }
+    }
+
+    private static int DEFAULT_MAX_LEVEL = 32;
+    private static double DEFAULT_P_FACTOR = 0.25;
+
+    Node head = new Node(null, DEFAULT_MAX_LEVEL);
+    int currentLevel = 1;
+
+    public boolean search(int target) {
+        Node node = head;
+        for (int i = currentLevel - 1; i >= 0; i--) {
+            node = findClosest(node, i, target);
+            if (node.next[i] != null && node.next[i].value == target) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void add(int num) {
+        int level = randomLevel();
+        Node[] update = new Node[level];
+        Node newNode = new Node(num, level);
+
+        for (int i = level - 1; i >= 0; i--) {
+            update[i] = findClosest(head, i, num);
+        }
+
+        for (int i = 0; i < level; i++) {
+            newNode.next[i] = update[i].next[i];
+            update[i].next[i] = newNode;
+        }
+
+        if (level > currentLevel) currentLevel = level;
+    }
+
+    public boolean erase(int num) {
+        Node[] update = new Node[currentLevel];
+        Node node = head;
+
+        for (int i = currentLevel - 1; i >= 0; i--) {
+            update[i] = findClosest(node, i, num);
+            node = update[i];
+        }
+
+        if (node.next[0] != null && node.next[0].value == num) {
+            for (int i = 0; i < currentLevel; i++) {
+                if (update[i].next[i] != node.next[i]) break;
+                update[i].next[i] = node.next[i].next[i];
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private Node findClosest(Node node, int levelIndex, int value) {
+        while (node.next[levelIndex] != null && value > node.next[levelIndex].value) {
+            node = node.next[levelIndex];
+        }
+        return node;
+    }
+
+    private int randomLevel() {
+        int level = 1;
+        while (Math.random() < DEFAULT_P_FACTOR && level < DEFAULT_MAX_LEVEL) {
+            level++;
+        }
+        return level;
+    }
+}
+```
+
+**面试追问**：
+- 跳表和红黑树的区别？（跳表：有序、范围查询简单、实现简单；红黑树：更稳定、内存占用低）
+- 跳表的时间复杂度？（查找、插入、删除都是 O(log n)）
+- Redis 为何用跳表而不是红黑树？（Redis ZSET 同时需要范围查询和排序，跳表更简单，区间查找高效）
 
 ---
 
@@ -565,6 +672,64 @@ class Subject {
 
 ---
 
+### 4.2 发布订阅模式（PubSub）
+
+**题目特点**：一种消息传递模式，发布者发送消息到主题，订阅者订阅主题接收消息，实现完全解耦。
+
+**核心思想**：
+- `Topic → Set<Subscriber>`：一个主题对应多个订阅者
+- `subscribe()`：订阅主题
+- `unsubscribe()`：取消订阅
+- `publish()`：向主题发布消息，通知所有订阅者
+
+**关键点**：
+- `ConcurrentHashMap`：线程安全的主题管理
+- `CopyOnWriteArraySet`：读多写少场景，适合发布订阅
+- `computeIfAbsent()`：原子性地创建主题和订阅者集合
+
+**代码模板**：
+```java
+class Subscriber {
+    private String name;
+
+    public Subscriber(String name) { this.name = name; }
+
+    public void onMessage(String topic, Object message) {
+        System.out.println("【" + name + "】收到来自 " + topic + " 的消息: " + message);
+    }
+
+    public String getName() { return name; }
+}
+
+public class PubSub {
+    private final Map<String, Set<Subscriber>> topics = new ConcurrentHashMap<>();
+
+    public void subscribe(String topic, Subscriber subscriber) {
+        topics.computeIfAbsent(topic, k -> new CopyOnWriteArraySet<>()).add(subscriber);
+    }
+
+    public void unsubscribe(String topic, Subscriber subscriber) {
+        Set<Subscriber> subscribers = topics.get(topic);
+        if (subscribers != null) subscribers.remove(subscriber);
+    }
+
+    public void publish(String topic, String message) {
+        Set<Subscriber> subscribers = topics.get(topic);
+        if (subscribers == null || subscribers.isEmpty()) return;
+        for (Subscriber sub : subscribers) {
+            sub.onMessage(topic, message);
+        }
+    }
+}
+```
+
+**面试追问**：
+- 发布订阅和观察者模式的区别？（观察者：主题和观察者直接通信；发布订阅：增加消息中间件（如 MQ），支持更复杂的路由和解耦）
+- 发布订阅模式的应用场景？（消息队列、事件总线、实时通知系统）
+- 为什么用 CopyOnWriteArraySet？（读操作远多于写操作，遍历比修改更频繁）
+
+---
+
 ## 五、总结表格
 
 ### 设计模式分类汇总
@@ -573,13 +738,15 @@ class Subject {
 | ------ | --------- | ---------- | ---------- |
 | **创建型** | 单例模式 | 双重检查锁定 + volatile | 全局唯一实例 |
 | **结构型** | LRU 缓存 | HashMap + 双向链表 | 缓存淘汰策略 |
+| **结构型** | 跳表 | 多层链表 + 随机层数 | 有序查找 O(log n) |
 | **并发-同步** | 阻塞队列 | synchronized + wait/notify | 生产者消费者 |
 | **并发-协调** | 三线程打印 | state + notifyAll | 多线程协作 |
 | **并发-资源池** | 连接池 | BlockingQueue + 复用 | 数据库连接管理 |
-| **并发-限流** | 令牌桶限流 | 时间窗口计数 | 接口限流保护 |
+| **并发-限流** | 滑动窗口限流 | LinkedList + 时间窗口 | 接口限流保护 |
 | **并发-生产者消费者** | 多线程 PC | ReentrantLock + Condition | 异步任务处理 |
 | **并发-线程池** | 线程池 | HashSet + BlockingQueue | 任务队列管理 |
 | **行为型** | 观察者模式 | Subject + Observer | 事件监听系统 |
+| **行为型** | 发布订阅模式 | PubSub + ConcurrentHashMap | 消息传递系统 |
 
 ### 核心技巧速查
 
@@ -587,11 +754,13 @@ class Subject {
 | ------ | ---------- | ---------- |
 | 线程安全单例 | 双重检查锁定 | volatile + synchronized |
 | O(1) 缓存查找 | HashMap + 双向链表 | LRUCache |
+| O(log n) 有序查找 | 多层链表 + 随机层数 | skiplist |
 | 阻塞读写 | wait/notify | BlockingQueue |
 | 精确线程协作 | Condition | MultiPC |
 | 线程池管理 | 核心线程 + 队列 | ThreadPool |
 | 限流保护 | 时间窗口 | RateLimit |
 | 连接复用 | 连接池 | ConnectionPool |
+| 消息发布订阅 | ConcurrentHashMap | PubSub |
 
 ---
 
