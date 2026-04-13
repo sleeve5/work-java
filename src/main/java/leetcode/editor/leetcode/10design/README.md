@@ -51,6 +51,7 @@
 
 **代码模板**：
 ```java
+// Singleton.java
 public class Singleton {
     private static volatile Singleton instance;
 
@@ -65,6 +66,7 @@ public class Singleton {
                 }
             }
         }
+
         return instance;
     }
 }
@@ -97,11 +99,19 @@ public class Singleton {
 
 **代码模板**：
 ```java
+// lru-cache.java
+import java.util.HashMap;
+import java.util.Map;
+
 class LRUCache {
     class Node {
         int key, value;
         Node prev, next;
-        Node(int k, int v) { this.key = k; this.value = v; }
+
+        Node(int k, int v) {
+            this.key = k;
+            this.value = v;
+        }
     }
 
     private final int capacity;
@@ -117,7 +127,8 @@ class LRUCache {
     }
 
     public int get(int key) {
-        if (!map.containsKey(key)) return -1;
+        if (!map.containsKey(key))
+            return -1;
         Node node = map.get(key);
         moveToHead(node);
         return node.value;
@@ -183,13 +194,21 @@ class LRUCache {
 
 **代码模板**：
 ```java
+// skiplist.java
+import java.util.Random;
+
 class skiplist {
     static class Node {
         Integer value;
         Node[] next;
-        Node(Integer value, int size) {
+
+        public Node(Integer value, int size) {
             this.value = value;
             this.next = new Node[size];
+        }
+
+        public String toString() {
+            return String.valueOf(value);
         }
     }
 
@@ -199,11 +218,14 @@ class skiplist {
     Node head = new Node(null, DEFAULT_MAX_LEVEL);
     int currentLevel = 1;
 
+    public skiplist() {
+    }
+
     public boolean search(int target) {
-        Node node = head;
+        Node searchNode = head;
         for (int i = currentLevel - 1; i >= 0; i--) {
-            node = findClosest(node, i, target);
-            if (node.next[i] != null && node.next[i].value == target) {
+            searchNode = findClosest(searchNode, i, target);
+            if (searchNode.next[i] != null && searchNode.next[i].value == target) {
                 return true;
             }
         }
@@ -212,53 +234,68 @@ class skiplist {
 
     public void add(int num) {
         int level = randomLevel();
-        Node[] update = new Node[level];
+        Node updateNode = head;
         Node newNode = new Node(num, level);
 
-        for (int i = level - 1; i >= 0; i--) {
-            update[i] = findClosest(head, i, num);
+        for (int i = currentLevel - 1; i >= 0; i--) {
+            updateNode = findClosest(updateNode, i, num);
+            if (i < level) {
+                Node temp = updateNode.next[i];
+                updateNode.next[i] = newNode;
+                newNode.next[i] = temp;
+            }
         }
 
-        for (int i = 0; i < level; i++) {
-            newNode.next[i] = update[i].next[i];
-            update[i].next[i] = newNode;
+        if (level > currentLevel) {
+            for (int i = currentLevel; i < level; i++) {
+                head.next[i] = newNode;
+            }
+            currentLevel = level;
         }
-
-        if (level > currentLevel) currentLevel = level;
     }
 
     public boolean erase(int num) {
-        Node[] update = new Node[currentLevel];
-        Node node = head;
-
+        boolean flag = false;
+        Node searchNode = head;
         for (int i = currentLevel - 1; i >= 0; i--) {
-            update[i] = findClosest(node, i, num);
-            node = update[i];
-        }
-
-        if (node.next[0] != null && node.next[0].value == num) {
-            for (int i = 0; i < currentLevel; i++) {
-                if (update[i].next[i] != node.next[i]) break;
-                update[i].next[i] = node.next[i].next[i];
+            searchNode = findClosest(searchNode, i, num);
+            if (searchNode.next[i] != null && searchNode.next[i].value == num) {
+                searchNode.next[i] = searchNode.next[i].next[i];
+                flag = true;
             }
-            return true;
         }
-        return false;
+        return flag;
     }
 
     private Node findClosest(Node node, int levelIndex, int value) {
-        while (node.next[levelIndex] != null && value > node.next[levelIndex].value) {
+        while ((node.next[levelIndex]) != null && value > node.next[levelIndex].value) {
             node = node.next[levelIndex];
         }
         return node;
     }
 
-    private int randomLevel() {
+    private static int randomLevel() {
         int level = 1;
         while (Math.random() < DEFAULT_P_FACTOR && level < DEFAULT_MAX_LEVEL) {
             level++;
         }
         return level;
+    }
+
+    public static void main(String[] args) {
+        skiplist list = new skiplist();
+        list.add(1);
+        list.add(2);
+        list.add(3);
+        list.add(4);
+        list.add(5);
+        list.add(6);
+        System.out.println("查找 3：" + list.search(3));
+        System.out.println("查找 7：" + list.search(7));
+        System.out.println("删除 3：" + list.erase(3));
+        System.out.println("再次查找 3：" + list.search(3));
+        System.out.println("删除 6：" + list.erase(6));
+        System.out.println("查找 6：" + list.search(6));
     }
 }
 ```
@@ -288,6 +325,10 @@ class skiplist {
 
 **代码模板**：
 ```java
+// BlockingQueue.java
+import java.util.LinkedList;
+import java.util.Queue;
+
 public class BlockingQueue {
     private final int capacity;
     private final Queue<String> queue;
@@ -299,19 +340,58 @@ public class BlockingQueue {
 
     public synchronized void put(String msg) throws InterruptedException {
         while (queue.size() >= capacity) {
-            wait();  // 队列满，等待
+            System.out.println("Queue id full, put blocking.");
+            wait();
         }
+
         queue.offer(msg);
-        notify();  // 唤醒等待的消费者
+        System.out.println("Put: " + msg + ", queue size: " + queue.size());
+
+        notify();
     }
 
     public synchronized String take() throws InterruptedException {
         while (queue.isEmpty()) {
-            wait();  // 队列空，等待
+            System.out.println("Queue is empty, take blocking.");
+            wait();
         }
+
         String msg = queue.poll();
-        notify();  // 唤醒等待的生产者
+        System.out.println("Take: " + msg + ", queue size: " + queue.size());
+
+        notify();
+
         return msg;
+    }
+
+    public static void main(String[] args) {
+        BlockingQueue queue = new BlockingQueue(5);
+
+        Thread producer = new Thread(() -> {
+            try {
+                for (int i = 0; i < 10; i++) {
+                    queue.put("MSG-" + i);
+                    Thread.sleep(100);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "producer");
+
+        Thread consumer = new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+                for (int i = 0; i < 10; i++) {
+                    queue.take();
+                    Thread.sleep(200);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "consumer");
+
+        producer.start();
+        consumer.start();
     }
 }
 ```
@@ -339,13 +419,17 @@ public class BlockingQueue {
 
 **代码模板**：
 ```java
+// ThreeThread.java
 public class ThreeThread {
-    private int state = 0;
+    private int state;
     private static final int COUNT = 3;
 
     public synchronized void printA() {
         try {
-            while (state % 3 != 0) wait();
+            while (state % 3 != 0) {
+                wait();
+            }
+
             System.out.println("A");
             state++;
             notifyAll();
@@ -356,7 +440,10 @@ public class ThreeThread {
 
     public synchronized void printB() {
         try {
-            while (state % 3 != 1) wait();
+            while (state % 3 != 1) {
+                wait();
+            }
+
             System.out.println("B");
             state++;
             notifyAll();
@@ -367,13 +454,38 @@ public class ThreeThread {
 
     public synchronized void printC() {
         try {
-            while (state % 3 != 2) wait();
+            while (state % 3 != 2) {
+                wait();
+            }
+
             System.out.println("C");
             state++;
             notifyAll();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+    }
+
+    public static void main(String[] args) {
+        ThreeThread print = new ThreeThread();
+
+        new Thread(() -> {
+            for (int i = 0; i < COUNT; i++) {
+                print.printA();
+            }
+        }, "A").start();
+
+        new Thread(() -> {
+            for (int i = 0; i < COUNT; i++) {
+                print.printB();
+            }
+        }, "B").start();
+
+        new Thread(() -> {
+            for (int i = 0; i < COUNT; i++) {
+                print.printC();
+            }
+        }, "C").start();
     }
 }
 ```
@@ -401,26 +513,60 @@ public class ThreeThread {
 
 **代码模板**：
 ```java
+// ConnectionPool.java
+import java.sql.*;
+import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+
 public class ConnectionPool {
     private final BlockingQueue<Connection> pool;
     private final int poolSize;
 
+    private static final String URL = "jdbc:mysql://localhost:3306/test";
+    private static final String USER = "root";
+    private static final String PASSWORD = "123456";
+
     public ConnectionPool(int poolSize) {
+        this.poolSize = poolSize;
         this.pool = new ArrayBlockingQueue<>(poolSize);
+
         for (int i = 0; i < poolSize; i++) {
-            pool.add(createConnection());
+            Connection conn;
+            try {
+                conn = createConnection();
+            } catch (SQLException e) {
+                throw new RuntimeException("create failed", e);
+            }
+            pool.add(conn);
         }
     }
 
     public Connection borrowConnection(long timeoutMs) throws InterruptedException {
         Connection conn = pool.poll(timeoutMs, TimeUnit.MILLISECONDS);
-        if (conn == null) throw new RuntimeException("timeout");
+        if (conn == null) {
+            throw new RuntimeException("timeout");
+        }
+
         return conn;
     }
 
     public void releaseConnection(Connection conn) {
         if (conn != null) {
-            if (!pool.offer(conn)) closeConnection(conn);
+            if (!pool.offer(conn)) {
+                closeConnection(conn);
+            }
+        }
+    }
+
+    private Connection createConnection() throws SQLException {
+        return DriverManager.getConnection(URL, USER, PASSWORD);
+    }
+
+    private void closeConnection(Connection conn) {
+        try {
+            conn.close();
+        } catch (SQLException e) {
+            throw new RuntimeException("close failed", e);
         }
     }
 }
@@ -449,6 +595,9 @@ public class ConnectionPool {
 
 **代码模板**：
 ```java
+// RateLimit.java
+import java.util.LinkedList;
+
 public class RateLimit {
     private final int limit;
     private final long windowSize;
@@ -469,7 +618,29 @@ public class RateLimit {
             queue.offer(now);
             return true;
         }
+
         return false;
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        RateLimit limiter = new RateLimit(5, 1000);
+
+        System.out.println("===== 第一轮 10 个请求 =====");
+        for (int i = 1; i <= 10; i++) {
+            boolean pass = limiter.tryAcquire();
+            System.out.println((pass ? "放行:" : "限流:") + i);
+            Thread.sleep(100);
+        }
+
+        System.out.println("\n===== 等待1秒，窗口滑动 =====");
+        Thread.sleep(1000);
+
+        System.out.println("===== 第二轮 10 个请求 =====");
+        for (int i = 1; i <= 10; i++) {
+            boolean pass = limiter.tryAcquire();
+            System.out.println((pass ? "放行:" : "限流:") + i);
+            Thread.sleep(100);
+        }
     }
 }
 ```
@@ -508,6 +679,12 @@ public class RateLimit {
 
 **代码模板**：
 ```java
+// MultiPC.java
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+
 public class MultiPC<T> {
     private final int capacity;
     private final Queue<T> queue = new LinkedList<>();
@@ -515,13 +692,21 @@ public class MultiPC<T> {
     private final Condition notFull = lock.newCondition();
     private final Condition notEmpty = lock.newCondition();
 
+    public MultiPC(int capacity) {
+        this.capacity = capacity;
+    }
+
     public void produce(T t) throws InterruptedException {
         lock.lock();
+
         try {
             while (queue.size() == capacity) {
                 notFull.await();
+                System.out.println("queue full, producer waiting");
             }
+
             queue.offer(t);
+            System.out.println("produce msg: " + t);
             notEmpty.signal();
         } finally {
             lock.unlock();
@@ -530,15 +715,47 @@ public class MultiPC<T> {
 
     public T consume() throws InterruptedException {
         lock.lock();
+
         try {
             while (queue.isEmpty()) {
                 notEmpty.await();
+                System.out.println("queue empty, consumer waiting");
             }
+
             T t = queue.poll();
+            System.out.println("consume msg: " + t);
             notFull.signal();
             return t;
         } finally {
             lock.unlock();
+        }
+    }
+
+    public static void main(String[] args) {
+        MultiPC<Integer> queue = new MultiPC<>(5);
+
+        for (int i = 0; i < 2; i++) {
+            new Thread(() -> {
+                try {
+                    for (int j = 0; j < 8; j++) {
+                        queue.produce(j);
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }, "P-" + i).start();
+        }
+
+        for (int i = 0; i < 2; i++) {
+            new Thread(() -> {
+                try {
+                    for (int j = 0; j < 8; j++) {
+                        queue.consume();
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }).start();
         }
     }
 }
@@ -576,10 +793,22 @@ public class MultiPC<T> {
 
 **代码模板**：
 ```java
+// ThreadPool.java
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
+
 public class ThreadPool {
     private final int coreSize;
     private final Set<Worker> workers = new HashSet<>();
     private final BlockingQueue<Runnable> taskQueue;
+
+    public ThreadPool(int coreSize, int queueSize) {
+        this.coreSize = coreSize;
+        this.taskQueue = new LinkedBlockingDeque<>(queueSize);
+    }
 
     public void execute(Runnable task) {
         synchronized (workers) {
@@ -588,31 +817,59 @@ public class ThreadPool {
                 workers.add(worker);
                 worker.thread.start();
             } else {
-                taskQueue.offer(task);  // 或拒绝
+                if (!taskQueue.offer(task)) {
+                    System.out.println("Queue is full, refused.");
+                }
             }
         }
     }
 
     private class Worker implements Runnable {
-        private Runnable task;
+        private Runnable firstTask;
         private Thread thread;
 
         public Worker(Runnable task) {
-            this.task = task;
+            this.firstTask = task;
             this.thread = new Thread(this);
         }
 
         @Override
         public void run() {
-            Runnable task = this.task;
+            Runnable task = firstTask;
+            firstTask = null;
             try {
                 while (task != null || (task = taskQueue.take()) != null) {
-                    task.run();
-                    task = null;
+                    try {
+                        task.run();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        task = null;
+                    }
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
+        }
+    }
+
+    public static void main(String[] args) {
+        ThreadPool pool = new ThreadPool(3, 10);
+
+        for (int i = 0; i < 20; i++) {
+            int taskId = i;
+
+            pool.execute(() -> {
+                System.out.println(Thread.currentThread().getName() + " execute " + taskId);
+
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+
+                System.out.println(Thread.currentThread().getName() + " finish " + taskId);
+            });
         }
     }
 }
@@ -633,7 +890,7 @@ public class ThreadPool {
 
 **核心思想**：
 - `Subject`：主题，维护观察者列表，状态变化时通知
-- `Observer`：观察者，定义更新接口
+- `Observer`：观察者，直接定义更新方法
 
 **关键点**：
 - `attach()`：添加观察者
@@ -642,8 +899,20 @@ public class ThreadPool {
 
 **代码模板**：
 ```java
-interface Observer {
-    void update(String msg);
+// ObserverPattern.java
+import java.util.LinkedList;
+import java.util.List;
+
+class Observer {
+    String name;
+
+    public Observer(String name) {
+        this.name = name;
+    }
+
+    public void update(String msg) {
+        System.out.println(name + " : " + msg);
+    }
 }
 
 class Subject {
@@ -661,6 +930,27 @@ class Subject {
         for (Observer observer : observers) {
             observer.update(msg);
         }
+    }
+}
+
+public class ObserverPattern {
+    public static void main(String[] args) {
+        Subject subject = new Subject();
+
+        Observer o1 = new Observer("o1");
+        Observer o2 = new Observer("o2");
+        Observer o3 = new Observer("o3");
+
+        subject.attach(o1);
+        subject.attach(o2);
+        subject.attach(o3);
+
+        System.out.println("============");
+        subject.notify("alive");
+
+        System.out.println("\n============");
+        subject.detach(o2);
+        subject.notify("alive");
     }
 }
 ```
@@ -689,36 +979,75 @@ class Subject {
 
 **代码模板**：
 ```java
+// PubSub.java
+import java.util.*;
+import java.util.concurrent.*;
+
 class Subscriber {
     private String name;
 
-    public Subscriber(String name) { this.name = name; }
+    public Subscriber(String name) {
+        this.name = name;
+    }
 
     public void onMessage(String topic, Object message) {
         System.out.println("【" + name + "】收到来自 " + topic + " 的消息: " + message);
     }
 
-    public String getName() { return name; }
+    public String getName() {
+        return name;
+    }
 }
 
 public class PubSub {
     private final Map<String, Set<Subscriber>> topics = new ConcurrentHashMap<>();
 
     public void subscribe(String topic, Subscriber subscriber) {
-        topics.computeIfAbsent(topic, k -> new CopyOnWriteArraySet<>()).add(subscriber);
+        if (!topics.containsKey(topic)) {
+            topics.put(topic, new CopyOnWriteArraySet<>());
+        }
+
+        topics.get(topic).add(subscriber);
+        System.out.println(subscriber.getName() + " subscribed: " + topic);
     }
 
     public void unsubscribe(String topic, Subscriber subscriber) {
         Set<Subscriber> subscribers = topics.get(topic);
-        if (subscribers != null) subscribers.remove(subscriber);
+
+        if (subscribers.contains(subscriber)) {
+            subscribers.remove(subscriber);
+        } else {
+            System.out.println("not exist");
+        }
     }
 
     public void publish(String topic, String message) {
         Set<Subscriber> subscribers = topics.get(topic);
-        if (subscribers == null || subscribers.isEmpty()) return;
+
+        if (subscribers == null || subscribers.isEmpty()) {
+            System.out.println("主题 " + topic + " 暂无订阅者");
+            return;
+        }
+
         for (Subscriber sub : subscribers) {
             sub.onMessage(topic, message);
         }
+    }
+
+    public static void main(String[] args) {
+        PubSub bus = new PubSub();
+
+        Subscriber sub1 = new Subscriber("sub1");
+        Subscriber sub2 = new Subscriber("sub2");
+
+        bus.subscribe("topic1", sub1);
+        bus.subscribe("topic2", sub2);
+        bus.subscribe("topic2", sub1);
+
+        bus.publish("topic1", "111");
+        bus.publish("topic2", "222");
+
+        bus.unsubscribe("topic1", sub1);
     }
 }
 ```
