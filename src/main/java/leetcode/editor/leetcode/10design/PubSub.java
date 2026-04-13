@@ -1,25 +1,17 @@
 import java.util.*;
 import java.util.concurrent.*;
 
-interface Subscriber {
-    void onMessage(String topic, Object message);
-
-    String getName();
-}
-
-class UserSubscriber implements Subscriber {
+class Subscriber {
     private String name;
 
-    public UserSubscriber(String name) {
+    public Subscriber(String name) {
         this.name = name;
     }
 
-    @Override
     public void onMessage(String topic, Object message) {
         System.out.println("【" + name + "】收到来自 " + topic + " 的消息: " + message);
     }
 
-    @Override
     public String getName() {
         return name;
     }
@@ -63,8 +55,8 @@ public class PubSub {
     public static void main(String[] args) {
         PubSub bus = new PubSub();
 
-        Subscriber sub1 = new UserSubscriber("sub1");
-        Subscriber sub2 = new UserSubscriber("sub2");
+        Subscriber sub1 = new Subscriber("sub1");
+        Subscriber sub2 = new Subscriber("sub2");
 
         bus.subscribe("topic1", sub1);
         bus.subscribe("topic2", sub2);
