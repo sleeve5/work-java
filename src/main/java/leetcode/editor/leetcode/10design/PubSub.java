@@ -40,8 +40,10 @@ public class PubSub {
     public void unsubscribe(String topic, Subscriber subscriber) {
         Set<Subscriber> subscribers = topics.get(topic);
 
-        if (subscribers != null) {
+        if (subscribers.contains(subscriber)) {
             subscribers.remove(subscriber);
+        } else {
+            System.out.println("not exist");
         }
     }
 
@@ -70,5 +72,7 @@ public class PubSub {
 
         bus.publish("topic1", "111");
         bus.publish("topic2", "222");
+
+        bus.unsubscribe("topic1", sub1);
     }
 }
