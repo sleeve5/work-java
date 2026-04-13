@@ -1,18 +1,13 @@
 import java.util.LinkedList;
 import java.util.List;
 
-interface Observer {
-    void update(String msg);
-}
-
-class MyObserver implements Observer {
+class Observer {
     String name;
 
-    public MyObserver(String name) {
+    public Observer(String name) {
         this.name = name;
     }
 
-    @Override
     public void update(String msg) {
         System.out.println(name + " : " + msg);
     }
@@ -41,9 +36,9 @@ public class ObserverPattern {
     public static void main(String[] args) {
         Subject subject = new Subject();
 
-        Observer o1 = new MyObserver("o1");
-        Observer o2 = new MyObserver("o2");
-        Observer o3 = new MyObserver("o3");
+        Observer o1 = new Observer("o1");
+        Observer o2 = new Observer("o2");
+        Observer o3 = new Observer("o3");
 
         subject.attach(o1);
         subject.attach(o2);
